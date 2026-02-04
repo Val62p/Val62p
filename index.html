@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Night Key - Escape Horror</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="game">
+      <header class="game__header">
+        <div>
+          <h1>Night Key</h1>
+          <p>Trouvez la clé rouillée, ouvrez la porte et échappez au monstre.</p>
+        </div>
+        <div class="game__status" aria-live="polite">
+          <span id="status-text">Appuyez sur Démarrer.</span>
+          <span id="turn-text">Tours 0</span>
+        </div>
+      </header>
+
+      <section class="game__board" id="board" aria-label="Plateau de jeu"></section>
+
+      <section class="game__panel">
+        <div class="game__controls" aria-label="Contrôles clavier">
+          <h2>Contrôles PC</h2>
+          <div class="control-grid">
+            <span>⬆️ / Z</span>
+            <span>⬇️ / S</span>
+            <span>⬅️ / Q</span>
+            <span>➡️ / D</span>
+          </div>
+          <p>Utilisez les flèches ou ZQSD pour avancer.</p>
+        </div>
+        <div class="game__actions">
+          <button id="start">Démarrer</button>
+          <button id="restart">Recommencer</button>
+          <label class="toggle">
+            <input type="checkbox" id="audio-toggle" checked />
+            <span>Son</span>
+          </label>
+        </div>
+      </section>
+
+      <section class="game__story" aria-live="polite">
+        <h2>Objectif</h2>
+        <ul>
+          <li>Repérez la clé dans les pièces sombres.</li>
+          <li>Déverrouillez la porte et sortez.</li>
+          <li>Le monstre bouge après chaque tour : restez à distance.</li>
+        </ul>
+      </section>
+    </main>
+
+    <audio id="audio-steps" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YQAAAAA=" preload="auto"></audio>
+    <audio id="audio-danger" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YQAAAAA=" preload="auto"></audio>
+
+    <script src="game.js"></script>
+  </body>
+</html>
