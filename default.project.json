@@ -1,0 +1,49 @@
+{
+  "name": "StealAMeme",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "Shared": {
+        "$path": "src/shared"
+      },
+      "Remotes": {
+        "$className": "Folder",
+        "Action": {
+          "$className": "RemoteFunction"
+        },
+        "State": {
+          "$className": "RemoteEvent"
+        },
+        "Notify": {
+          "$className": "RemoteEvent"
+        }
+      }
+    },
+    "ServerScriptService": {
+      "Bootstrap": {
+        "$path": "src/server/Bootstrap"
+      },
+      "Services": {
+        "$path": "src/server/Services"
+      },
+      "Domain": {
+        "$path": "src/server/Domain"
+      }
+    },
+    "StarterPlayer": {
+      "$properties": {
+        "CharacterWalkSpeed": 16
+      },
+      "StarterPlayerScripts": {
+        "Client": {
+          "$path": "src/client"
+        }
+      }
+    },
+    "Players": {
+      "$properties": {
+        "RespawnTime": 3
+      }
+    }
+  }
+}
