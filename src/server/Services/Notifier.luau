@@ -1,4 +1,3 @@
---!strict
 -- Notifications serveur → client (RemoteEvent `Notify`). Texte déjà rédigé côté serveur.
 local Notifier = {}
 Notifier.__index = Notifier

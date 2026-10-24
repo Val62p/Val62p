@@ -1,4 +1,3 @@
---!strict
 -- Signal minimal en Luau pur (connexions déconnectables, appel synchrone).
 local Signal = {}
 Signal.__index = Signal

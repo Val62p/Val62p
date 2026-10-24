@@ -1,0 +1,47 @@
+---
+# Std Selene minimale pour Roblox, utilisée car la std officielle (selene generate-roblox-std)
+# se télécharge depuis les serveurs Roblox, inaccessibles depuis l'environnement de développement.
+# Sur un poste avec accès réseau, préférer `std = "roblox"` dans selene.toml.
+base: luau
+name: roblox-lite
+globals:
+  game:
+    any: true
+  workspace:
+    any: true
+  script:
+    any: true
+  Instance:
+    any: true
+  Enum:
+    any: true
+  Vector2:
+    any: true
+  Vector3:
+    any: true
+  CFrame:
+    any: true
+  Color3:
+    any: true
+  UDim:
+    any: true
+  UDim2:
+    any: true
+  TweenInfo:
+    any: true
+  NumberRange:
+    any: true
+  NumberSequence:
+    any: true
+  ColorSequence:
+    any: true
+  Random:
+    any: true
+  task:
+    any: true
+  typeof:
+    args:
+      - type: any
+  warn:
+    args:
+      - type: "..."

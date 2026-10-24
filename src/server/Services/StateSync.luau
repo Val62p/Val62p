@@ -1,4 +1,3 @@
---!strict
 -- Envoie au client une vue de son état (lecture seule, aucune donnée d'autrui sensible).
 -- Les envois sont regroupés : plusieurs changements dans la même frame = un seul message.
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

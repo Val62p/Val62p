@@ -19,8 +19,14 @@ end
 
 -- Nœuds virtuels : { name, parent, fsPath?, kind = "folder" | "module" | "script", children = {} }
 local function newNode(name, parent, fsPath, kind)
-	return { name = name, parent = parent, fsPath = fsPath, kind = kind, children = {} }
+	local path = if parent and parent.path ~= "" then parent.path .. "." .. name elseif parent then name else ""
+	return { name = name, parent = parent, fsPath = fsPath, kind = kind, children = {}, path = path }
 end
+
+-- Objets de remplacement par chemin Roblox (ex. "ReplicatedStorage.Remotes.Action").
+Loader.overrides = {}
+-- Globales injectées dans chaque module chargé (remplacent les valeurs par défaut).
+Loader.globals = {}
 
 -- Les fonctions fs de Lune peuvent céder la main, ce qui est interdit dans un métaméthode :
 -- tout l'arbre source est donc lu une fois, au chargement.
@@ -119,12 +125,20 @@ local function proxyFor(node)
 	local proxy = newproxy(true)
 	local meta = getmetatable(proxy)
 	meta.__index = function(_, key)
+		local override = Loader.overrides[(if node.path ~= "" then node.path .. "." else "") .. tostring(key)]
+		if override ~= nil then
+			return override
+		end
 		if key == "Parent" then
 			return node.parent and proxyFor(node.parent)
 		elseif key == "Name" then
 			return node.name
 		elseif key == "WaitForChild" or key == "FindFirstChild" then
 			return function(_, childName)
+				local override = Loader.overrides[(if node.path ~= "" then node.path .. "." else "") .. tostring(childName)]
+				if override ~= nil then
+					return override
+				end
 				local child = findChild(node, childName)
 				if not child then
 					if key == "WaitForChild" then
@@ -184,7 +198,7 @@ end
 local requireModule
 
 local function makeEnvironment(node)
-	return {
+	local env = {
 		script = proxyFor(node),
 		game = gameProxy,
 		workspace = Loader.services.Workspace,
@@ -207,6 +221,10 @@ local function makeEnvironment(node)
 			end,
 		},
 	}
+	for key, value in Loader.globals do
+		env[key] = value
+	end
+	return env
 end
 
 local function sourcePathOf(node)
@@ -251,6 +269,14 @@ end
 -- Vide le cache (modules réévalués au prochain require).
 function Loader.reset()
 	Loader.cache = {}
+end
+
+-- Réinitialisation complète entre deux fichiers de specs.
+function Loader.resetAll()
+	Loader.cache = {}
+	Loader.globals = {}
+	Loader.overrides = {}
+	Loader.services = {}
 end
 
 -- Compile (sans exécuter) tous les fichiers Luau d'un dossier : détecte les erreurs de syntaxe.

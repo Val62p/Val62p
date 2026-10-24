@@ -153,7 +153,7 @@ function TheftService:tryStart(thief: Player, baseIndex: number, slot: number)
 	if not ok then
 		return Router.fail(code)
 	end
-	assert(victim and victimRecord and uid)
+	assert(victim and victimRecord and uid, "contexte de vol incomplet")
 
 	self.nextId += 1
 	local memeId = victimRecord.profile.memes[uid].id

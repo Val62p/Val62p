@@ -1,4 +1,3 @@
---!strict
 -- Protections contre le vol : protection de départ, protection après un vol subi, mode Zen.
 -- Le mode Zen est l'option de protection accessible à tous : personne ne peut emprunter tes
 -- mèmes, et tu ne peux pas en emprunter. Changement limité par un délai.

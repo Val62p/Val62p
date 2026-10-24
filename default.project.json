@@ -44,6 +44,11 @@
       "$properties": {
         "RespawnTime": 3
       }
+    },
+    "Workspace": {
+      "$properties": {
+        "StreamingEnabled": false
+      }
     }
   }
 }

@@ -1,0 +1,5 @@
+std = "roblox-lite"
+
+[config]
+# Les modules de test et de configuration utilisent des tables dynamiques.
+empty_if = { comments_count = true }

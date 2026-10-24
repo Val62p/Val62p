@@ -1,4 +1,3 @@
---!strict
 -- Profils joueurs persistés dans un DataStore, avec verrou de session.
 --
 -- Valeur stockée : { data = profil, lock = { job = JobId, at = os.time() }?, savedAt = number }

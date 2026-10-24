@@ -2,11 +2,14 @@
 -- Mise en forme des nombres et durées (texte en français).
 local Format = {}
 
+-- Espace fine insécable (séparateur de milliers en français).
+local THIN_SPACE = utf8.char(0x202F)
+
 local function group(digits: string): string
 	-- Groupes de 3 chiffres séparés par une espace fine insécable.
 	local out = digits
 	while true do
-		local replaced, count = string.gsub(out, "^(%d+)(%d%d%d)", "%1\u{202F}%2")
+		local replaced, count = string.gsub(out, "^(%d+)(%d%d%d)", "%1" .. THIN_SPACE .. "%2")
 		out = replaced
 		if count == 0 then
 			break

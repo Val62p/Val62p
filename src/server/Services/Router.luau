@@ -1,4 +1,3 @@
---!strict
 -- Point d'entrée réseau unique : RemoteFunction `Action`.
 -- Chaque action déclare un nombre maximal d'arguments, un validateur et un gestionnaire.
 -- Ordre : nom d'action → débit global → débit de l'action → profil prêt → arguments → gestionnaire.

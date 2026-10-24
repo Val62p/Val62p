@@ -37,7 +37,7 @@ table.sort(files)
 for _, file in files do
 	local name = string.gsub(file, "%.luau$", "")
 	T.suite(name)
-	Loader.reset()
+	Loader.resetAll()
 	-- `require` de Lune peut céder la main : il est appelé hors de pcall.
 	local spec = require("./specs/" .. name)
 	local ok, err = pcall(spec, T, Loader)
