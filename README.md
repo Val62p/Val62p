@@ -11,6 +11,12 @@ Jeu Roblox multijoueur familial : **collectionne des mèmes originaux, installe-
 - Progression sauvegardée (DataStore versionné, verrou de session, migrations).
 - Achats Robux prêts mais désactivés tant qu'aucun vrai produit n'est configuré (aucun identifiant inventé).
 
+## Essayer tout de suite (sans rien installer)
+
+Télécharge [`place/StealAMeme.rbxl`](place/StealAMeme.rbxl) (bouton « Download raw file » sur GitHub), puis dans Roblox Studio : **File → Open from File…** → ce fichier → **Play**. La carte se construit au lancement (le Workspace est vide en mode édition, c'est normal). Les outils de test sont dans le panneau Aide (F1).
+
+Cette place est une copie générée par `rojo build` ; après une modification du code, la régénérer avec `rojo build -o place/StealAMeme.rbxl`.
+
 ## Démarrage rapide
 
 Prérequis : [Roblox Studio](https://create.roblox.com/), [Rokit](https://github.com/rojo-rbx/rokit) (ou installation manuelle des outils de `rokit.toml`) et le plugin Rojo pour Studio.
