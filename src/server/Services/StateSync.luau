@@ -89,6 +89,10 @@ function StateSync:buildView(player: Player): { [string]: any }
 		carrying = ctx.theft:viewAsThief(player),
 		robbery = ctx.theft:viewAsVictim(player),
 		stats = table.clone(profile.stats),
+		walkSpeed = Progression.walkSpeed(profile),
+		-- Produits Robux réellement configurés (vide si la monétisation est désactivée).
+		robuxProducts = if ctx.monetization then ctx.monetization:availableProducts() else {},
+		studioTools = ctx.isStudio == true,
 	}
 end
 

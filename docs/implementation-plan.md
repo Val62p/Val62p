@@ -36,6 +36,7 @@ Projet **Rojo** : fichiers Luau versionnés, place `.rbxl` générée par `rojo 
 - [x] **3. Vol et protection** — crochetage, transport visible, alerte, interception, zone surveillée, délais, anti-répétition, anti-téléportation, déconnexions, fermeture serveur, protections de départ et après vol, mode Zen, assurance.
 - [x] **4. Interface et contenu** — HUD minimal, boutique (3 onglets), collection et album, aide générée depuis la configuration, tutoriel contextuel, notifications, bandeaux de vol, invites de proximité, 12 mèmes originaux, 11 icônes primitives, ambiance par biome, raccourcis clavier/manette.
 - [x] **5. Persistance et robustesse** — DataStore versionné avec verrou de session, migrations, réparation, lecture seule des versions futures ; tests ; build et contrôle de la place ; documentation.
+- [x] **6. Tapis de course et Robux** — amélioration de vitesse à 6 niveaux, station physique dans chaque base (invite, niveau affiché, bandes animées), produit Robux « +1 niveau » prêt mais désactivé (ProcessReceipt idempotent, sauvegarde avant confirmation), outils de test réservés à Studio.
 
 ## Vérifications exécutées (`./tools/check.sh`)
 
@@ -44,9 +45,9 @@ Projet **Rojo** : fichiers Luau versionnés, place `.rbxl` générée par `rojo 
 | StyLua `--check` | conforme |
 | Selene (std locale `roblox-lite`) | 0 erreur, 0 avertissement |
 | Compilation de chaque fichier Luau (Lune) | OK |
-| Tests Lune (10 fichiers) | 94 réussis, 0 échoué |
+| Tests Lune (11 fichiers) | 105 réussis, 0 échoué |
 | `rojo build` | place générée |
-| `tools/check-place.luau` | 1 Script, 1 LocalScript, 62 ModuleScripts, 3 distants, aucun script inattendu |
+| `tools/check-place.luau` | 1 Script, 1 LocalScript, 65 ModuleScripts, 3 distants, aucun script inattendu |
 
 ## Décisions prises par défaut
 
@@ -55,7 +56,8 @@ Projet **Rojo** : fichiers Luau versionnés, place `.rbxl` générée par `rojo 
 - Le dernier mème posé d'une base ne peut jamais être emporté ; la victime d'un vol réussi reçoit 30 % du prix en assurance.
 - Le vol ne peut commencer que si le propriétaire est hors de sa base ; la zone surveillée est le cœur de la place (24 studs).
 - Achat depuis la boutique autorisé pour les biomes déjà découverts ; achat sur place toujours possible.
-- Monétisation Robux désactivée (aucun produit configuré).
+- Monétisation Robux désactivée tant qu'aucun vrai produit n'est saisi ; le seul produit prévu avance le tapis de course d'un niveau (accessible aussi en pièces).
+- Vitesse du tapis ignorée pendant le transport d'un mème emprunté (vitesse fixe de 12).
 - Aucun son (pas d'audio vérifié disponible) : retours uniquement visuels.
 
 ## Limites connues

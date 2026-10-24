@@ -21,7 +21,31 @@ Installer aussi le **plugin Rojo** dans Studio (menu Plugins, ou `rojo plugin in
 
 Aucune vérification de types Luau statique n'a pu être lancée pendant le développement (luau-lsp/luau-analyze indisponibles hors ligne). Les modules du domaine et de la configuration sont en `--!strict`. Dans Studio, ouvrez la fenêtre **Script Analysis** pour voir les avertissements ; en local, `luau-lsp analyze` avec les définitions Roblox est recommandé.
 
-## 2. Ouvrir le jeu dans Studio
+## 2. Tester dans une place existante (ex. « place2 »)
+
+**Méthode la plus simple — ouvrir la place fournie** : `build/StealAMeme.rbxl` (régénérable avec `rojo build -o build/StealAMeme.rbxl`). Dans Studio : **File → Open from File…**, choisir le fichier, puis **Play** (F5). Ta place2 n'est pas modifiée.
+
+**Méthode synchronisée — dans place2 elle-même** (les modifications des fichiers arrivent en direct) :
+
+1. Sur ton ordinateur : récupérer le dépôt (branche `claude/new-session-jeh9rg`), installer les outils (`rokit install`), puis installer le plugin Rojo dans Studio (`rojo plugin install`, puis redémarrer Studio).
+2. Dans place2, **supprimer `Workspace.Baseplate` et `Workspace.SpawnLocation`** du modèle de départ : la carte du jeu génère son propre sol et ses propres points d'apparition au centre (sinon, sol en double et apparition dans la fontaine). Supprimer aussi d'éventuels scripts de test qui modifieraient les joueurs.
+3. Dans un terminal, à la racine du dépôt : `rojo serve`.
+4. Dans Studio : onglet **Plugins → Rojo → Connect**. Les dossiers `ReplicatedStorage.Shared`, `ReplicatedStorage.Remotes`, `ServerScriptService.*` et `StarterPlayerScripts.Client` apparaissent.
+5. **Play**.
+
+Attention : avec Rojo connecté, ce sont les fichiers du dépôt qui font foi ; une modification faite à la main dans Studio sur ces scripts sera écrasée à la prochaine synchronisation.
+
+### Outils de test (Studio uniquement)
+
+Pendant un Play dans Studio, le panneau **Aide (F1)** affiche une section « Outils de test » :
+
+- **+10 000 pièces** — pour essayer achats, tapis de course et améliorations sans attendre ;
+- **Terminer ma protection** — pour tester le vol sans attendre les 3 min de protection (à cliquer sur le client de la victime) ;
+- **Nouvel arrivage** — renouvelle tous les kiosques (pour voir les mèmes rares).
+
+Ces outils n'existent que si `RunService:IsStudio()` est vrai : sur un serveur Roblox publié, l'action n'est même pas enregistrée et la section n'apparaît pas.
+
+## 3. Ouvrir le jeu dans Studio (détails)
 
 Option A, place générée :
 
@@ -45,7 +69,7 @@ Dans Studio (place vide ou place existante dédiée), plugin Rojo → **Connect*
 - **Game Settings → Avatar** : laisser l'avatar par défaut (le jeu ne dépend pas de R6/R15).
 - Le projet désactive `Workspace.StreamingEnabled` (carte compacte, toujours chargée en entier).
 
-## 3. Sauvegarde (DataStore)
+## 4. Sauvegarde (DataStore)
 
 Sans configuration, Studio n'a pas accès aux DataStore : le jeu fonctionne, mais un message signale « Sauvegarde indisponible » et rien n'est écrit (le vrai profil n'est jamais écrasé).
 
@@ -57,7 +81,7 @@ Pour tester la sauvegarde :
 
 Le DataStore s'appelle `StealAMeme_Profiles_v1`, clé `player_<UserId>`. Valeur : `{ data = profil, lock = { job, at }, savedAt }`. Le schéma du profil est décrit dans `src/server/Domain/ProfileSchema.luau` (version 1, migrations depuis les données sans version).
 
-## 4. Tests
+## 5. Tests automatiques
 
 ```sh
 ./tools/check.sh          # tout
@@ -74,7 +98,7 @@ Les tests exécutent le **vrai code** du jeu dans Lune :
 
 Limites : ni la physique, ni le rendu réel de l'interface, ni la réplication réseau ne sont simulés. Les vérifications manuelles ci-dessous restent nécessaires.
 
-## 5. Vérifications manuelles dans Studio
+## 6. Vérifications manuelles dans Studio
 
 **Solo (Play)**
 
@@ -85,6 +109,7 @@ Limites : ni la physique, ni le rendu réel de l'interface, ni la réplication r
 - [ ] Boutique (B) : trois onglets, prix et effets, confirmation « Confirmer ? » sur les gros achats.
 - [ ] Entrer dans Plage Soda : titre du lieu, ambiance, notification de découverte, arrivages débloqués.
 - [ ] Mode Zen depuis l'aide (F1), délai de changement affiché.
+- [ ] Tapis de course (à droite juste après l’entrée de la base) : invite « Améliorer · 300 pièces », la vitesse augmente, les bandes défilent plus vite, le niveau s'affiche au-dessus de la console. Même amélioration dans Boutique → Améliorations.
 
 **Multijoueur (onglet Test → Clients and Servers, 2 ou 3 joueurs)**
 
@@ -95,6 +120,7 @@ Limites : ni la physique, ni le rendu réel de l'interface, ni la réplication r
 - [ ] Zone surveillée : traverser l'anneau doré de la place avec un mème → retour chez la victime.
 - [ ] Livraison : le mème rejoint la base du voleur ; la victime reçoit l'assurance et une protection de 3 min.
 - [ ] Quitter (fermer un client) pendant un transport : le mème reste chez sa victime.
+- [ ] Avec un tapis de course amélioré : pendant le transport, le voleur revient à la vitesse fixe de 12, puis retrouve sa vitesse.
 
 **Appareils (Device Emulator de Studio)**
 
@@ -102,7 +128,18 @@ Limites : ni la physique, ni le rendu réel de l'interface, ni la réplication r
 - [ ] Manette : Y boutique, L1 mèmes, R1 aide, B ferme ; navigation dans les panneaux au pad.
 - [ ] Tablette et ordinateur.
 
-## 6. Publication
+## 7. Achats Robux (tapis de course : +1 niveau)
+
+Le code est prêt mais **désactivé** : aucun identifiant de produit n'a été inventé. Pour l'activer :
+
+1. Publier l'expérience (File → Publish to Roblox), en privé pour commencer.
+2. Creator Hub → ton expérience → **Monétisation → Produits de développeur** → créer « Tapis de course : +1 niveau », choisir le prix en Robux, enregistrer, puis copier l'**identifiant du produit**.
+3. Dans `src/shared/Config/Monetization.luau` : coller l'identifiant dans `DeveloperProducts.TreadmillLevel.productId` et passer `Enabled = true`.
+4. Play dans Studio : la boutique (onglet Améliorations) affiche deux boutons sur la carte du tapis, « 300 pièces » et « R$ <prix> ». Dans Studio, l'achat est **simulé** par Roblox : aucun Robux n'est débité.
+
+Garanties côté serveur : le client ne fait qu'ouvrir la fenêtre officielle ; l'achat est accordé dans `MarketplaceService.ProcessReceipt`, une seule fois par reçu (identifiant mémorisé dans le profil), et le profil est sauvegardé avant de confirmer à Roblox. Si le tapis est déjà au maximum, le joueur reçoit des pièces à la place. Le produit n'avance que d'un niveau : tous les niveaux restent atteignables avec des pièces, et pendant un vol la vitesse est fixe, donc les Robux ne donnent aucun avantage pour voler.
+
+## 8. Publication
 
 Le dépôt ne publie rien et ne dépense pas de Robux. Quand le jeu est prêt :
 
@@ -110,7 +147,3 @@ Le dépôt ne publie rien et ne dépense pas de Robux. Quand le jeu est prêt :
 2. File → Publish to Roblox (privé d'abord), puis Game Settings : nom, description, icône (à créer, voir `docs/assets.md`), genre, Max Players 6.
 3. Remplir le questionnaire de maturité (contenu familial, pas de violence) dans le Creator Hub.
 4. Ouvrir l'expérience au public quand les tests multijoueur sont concluants.
-
-### Ajouter un jour des produits Robux
-
-La monétisation est désactivée (`Config/Monetization.luau`). Pour l'activer proprement : créer les produits dans le Creator Hub, reporter leurs vrais identifiants, traiter les achats côté serveur dans `MarketplaceService.ProcessReceipt` (idempotent, enregistré dans le profil avant de retourner `PurchaseGranted`), ne jamais vendre de récompense aléatoire, et garder le vol non obligatoire pour progresser.

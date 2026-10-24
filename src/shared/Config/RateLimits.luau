@@ -16,5 +16,7 @@ return {
 		ToggleZen = { capacity = 2, refillPerSecond = 0.5 },
 		TeleportHome = { capacity = 2, refillPerSecond = 0.5 },
 		CompleteTutorial = { capacity = 2, refillPerSecond = 0.2 },
+		BuyWithRobux = { capacity = 2, refillPerSecond = 0.5 },
+		StudioTool = { capacity = 5, refillPerSecond = 2 },
 	},
 }

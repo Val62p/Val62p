@@ -7,4 +7,5 @@ return table.freeze({
 	Kiosk = "SAM_Kiosk",
 	Pedestal = "SAM_Pedestal",
 	MemeVisual = "SAM_MemeVisual",
+	Treadmill = "SAM_Treadmill",
 })

@@ -82,10 +82,22 @@ return function(T, Loader)
 		T.eq(Config.Cosmetics.Defs[Config.Cosmetics.Default].price, 0)
 	end)
 
-	T.test("monétisation Robux désactivée, aucun produit inventé", function()
+	T.test("monétisation Robux désactivée, aucun identifiant inventé", function()
 		T.eq(Config.Monetization.Enabled, false)
-		T.eq(next(Config.Monetization.DeveloperProducts), nil)
+		for key, def in Config.Monetization.DeveloperProducts do
+			T.eq(def.productId, 0, key .. " : identifiant à saisir depuis le Creator Hub")
+			T.truthy(def.kind == "UpgradeLevel" and Config.Upgrades.Defs[def.upgradeId], key .. " : amélioration existante")
+		end
 		T.eq(next(Config.Monetization.GamePasses), nil)
+	end)
+
+	T.test("tapis de course : vitesse croissante, transport toujours plus lent", function()
+		local levels = Config.Upgrades.Defs.Treadmill.levels
+		T.eq(levels[1].value, 16, "vitesse Roblox par défaut au départ")
+		for _, level in levels do
+			T.truthy(level.value > Config.Theft.CarryWalkSpeed, "plus rapide qu'en portant un mème")
+			T.truthy(level.value < Config.Theft.MaxCarrySpeed, "jamais confondu avec une téléportation")
+		end
 	end)
 
 	T.test("chaque action réseau a une limite de débit et chaque code un message", function()

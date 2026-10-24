@@ -1,7 +1,9 @@
 -- Boutique : mèmes des kiosques découverts, améliorations, cosmétiques.
 -- Prix et effet affichés avant achat, état d'achat, confirmation courte pour les achats
--- importants, retours d'erreur traduits. Aucun achat Robux (monétisation désactivée).
+-- importants, retours d'erreur traduits. Bouton Robux seulement pour les produits réellement
+-- configurés par le serveur (l'achat est accordé par le serveur, jamais par ce client).
 local CollectionService = game:GetService("CollectionService")
+local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -31,6 +33,7 @@ local content: ScrollingFrame
 local updaters: { () -> () } = {}
 local timers: { { label: TextLabel, biomeId: string } } = {}
 local pedestals: { [string]: { [number]: BasePart } } = {}
+local robuxPrices: { [number]: number | false } = {}
 
 local function grid(parent: Instance, order: number): Frame
 	local screen = screenGui.AbsoluteSize
@@ -288,6 +291,59 @@ local function effectText(def: any, from: any, to: any?): string
 	return value(from) .. " → " .. value(to) .. unit
 end
 
+-- Produit Robux configuré qui avance d'un niveau l'amélioration `upgradeId`.
+local function robuxProductFor(upgradeId: string): (string?, number?)
+	local available = ClientState.view.robuxProducts or {}
+	for key, def in Config.Monetization.DeveloperProducts do
+		if def.kind == "UpgradeLevel" and def.upgradeId == upgradeId and available[key] then
+			return key, available[key]
+		end
+	end
+	return nil, nil
+end
+
+-- Prix en Robux lu auprès de Roblox (mis en cache) ; le bouton affiche « Robux » en attendant.
+local function robuxPrice(productId: number): number?
+	local cached = robuxPrices[productId]
+	if cached == nil then
+		robuxPrices[productId] = false
+		task.spawn(function()
+			local ok, info = pcall(function()
+				return MarketplaceService:GetProductInfo(productId, Enum.InfoType.Product)
+			end)
+			if ok and type(info) == "table" and type(info.PriceInRobux) == "number" then
+				robuxPrices[productId] = info.PriceInRobux
+				-- Reconstruction différée : jamais au milieu d'une construction en cours.
+				task.defer(function()
+					if Panels.current() == "Shop" and tabs.selected() == "Upgrades" then
+						ShopPanel.build("Upgrades")
+					end
+				end)
+			end
+		end)
+		return nil
+	end
+	return if cached then cached else nil
+end
+
+local function robuxButton(parent: Instance, productKey: string, productId: number)
+	local price = robuxPrice(productId)
+	local button = actionButton(parent, if price then "R$ " .. price else "Robux", Colors.Success)
+	button.AnchorPoint = Vector2.new(1, 1)
+	button.Position = UDim2.fromScale(1, 1)
+	button.Size = UDim2.new(0.48, 0, 0, 44)
+	Ui.onClick(button, function()
+		task.spawn(function()
+			-- Le serveur vérifie puis ouvre la fenêtre d'achat officielle de Roblox.
+			local result = ClientState.requestOnce("robux:" .. productKey, "BuyWithRobux", productKey)
+			if result and not result.ok then
+				Notifications.result(result)
+			end
+		end)
+	end)
+	return button
+end
+
 local function buildUpgrades()
 	local section = grid(content, 1)
 	for order, upgradeId in Config.Upgrades.Order do
@@ -319,16 +375,33 @@ local function buildUpgrades()
 			TextYAlignment = Enum.TextYAlignment.Top,
 		})
 		if nextLevel then
-			priceRow(frame, nextLevel.price)
-			purchaseButton(frame, nextLevel.price, "upgrade:" .. upgradeId, "Améliorer", Colors.Secondary, function()
-				return nil
-			end, function()
-				local result = ClientState.requestOnce("upgrade:" .. upgradeId, "BuyUpgrade", upgradeId)
-				Notifications.result(result, def.displayName .. " : niveau " .. tostring(level + 1) .. " !")
-				if result and result.ok then
-					task.defer(ShopPanel.build, "Upgrades")
+			local productKey, productId = robuxProductFor(upgradeId)
+			local coinsButton = purchaseButton(
+				frame,
+				nextLevel.price,
+				"upgrade:" .. upgradeId,
+				if productKey then Format.coins(nextLevel.price) .. " pièces" else "Améliorer",
+				Colors.Secondary,
+				function()
+					return nil
+				end,
+				function()
+					local result = ClientState.requestOnce("upgrade:" .. upgradeId, "BuyUpgrade", upgradeId)
+					Notifications.result(result, def.displayName .. " : niveau " .. tostring(level + 1) .. " !")
+					if result and result.ok then
+						task.defer(ShopPanel.build, "Upgrades")
+					end
 				end
-			end)
+			)
+			if productKey and productId then
+				-- Deux choix côte à côte : pièces (gratuit) ou Robux (raccourci d'un niveau).
+				coinsButton.AnchorPoint = Vector2.new(0, 1)
+				coinsButton.Position = UDim2.fromScale(0, 1)
+				coinsButton.Size = UDim2.new(0.48, 0, 0, 44)
+				robuxButton(frame, productKey, productId)
+			else
+				priceRow(frame, nextLevel.price)
+			end
 		else
 			local done = actionButton(frame, "Maximum", Colors.Success)
 			done.AnchorPoint = Vector2.new(1, 1)

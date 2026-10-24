@@ -27,8 +27,11 @@ function task.spawn(fn, ...)
 	resume(thread, ...)
 	return thread
 end
+-- Comme dans Roblox : exécuté plus tard (au prochain pump), jamais au milieu du code en cours.
 function task.defer(fn, ...)
-	return task.spawn(fn, ...)
+	local thread = if type(fn) == "thread" then fn else coroutine.create(fn)
+	table.insert(scheduler.queue, { at = scheduler.now, thread = thread, args = table.pack(...) })
+	return thread
 end
 function task.delay(seconds, fn, ...)
 	local thread = coroutine.create(fn)

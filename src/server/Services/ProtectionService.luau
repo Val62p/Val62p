@@ -88,6 +88,16 @@ function ProtectionService:grantShield(player: Player, seconds: number)
 	end
 end
 
+-- Outil de test Studio : met fin aux protections du joueur.
+function ProtectionService:clearShields(player: Player)
+	local state = self.states[player.UserId]
+	if state then
+		state.joinShieldUntil = 0
+		state.shieldUntil = 0
+		self:_changed(player)
+	end
+end
+
 function ProtectionService:toggleZen(player: Player)
 	local state = self.states[player.UserId]
 	if not state then

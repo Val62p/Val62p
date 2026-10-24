@@ -50,6 +50,8 @@ function ProfileSchema.default(now: number?)
 		album = {},
 		settings = { tutorialDone = false, zen = false },
 		stats = stats,
+		-- Identifiants des derniers achats Robux accordés (anti-doublon de ProcessReceipt).
+		receipts = {},
 		createdAt = now or 0,
 	}
 end
@@ -71,7 +73,7 @@ local MIGRATIONS: { [number]: (any) -> any } = {
 			end
 			out.nextUid = n + 1
 		end
-		for _, key in { "nextUid", "upgrades", "cosmetics", "discovered", "album", "settings", "stats", "createdAt" } do
+		for _, key in { "nextUid", "upgrades", "cosmetics", "discovered", "album", "settings", "stats", "receipts", "createdAt" } do
 			if raw[key] ~= nil and out[key] == nil then
 				out[key] = raw[key]
 			end
@@ -231,6 +233,19 @@ local function sanitize(raw: any, now: number): (any, { string })
 			if Validate.isInteger(value, 0, 1e12) then
 				profile.stats[key] = value
 			end
+		end
+	end
+
+	-- Reçus d'achats Robux : chaînes courtes, historique borné (les plus récents).
+	if isTable(raw.receipts) then
+		local limit = Config.Monetization.ReceiptHistorySize
+		for _, receipt in ipairs(raw.receipts) do
+			if type(receipt) == "string" and #receipt > 0 and #receipt <= 64 then
+				table.insert(profile.receipts, receipt)
+			end
+		end
+		while #profile.receipts > limit do
+			table.remove(profile.receipts, 1)
 		end
 	end
 

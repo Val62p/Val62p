@@ -96,6 +96,14 @@ function MapLayout.homeCFrame(baseIndex: number): CFrame
 	return base.cframe * CFrame.new(0, 3, -12) * CFrame.Angles(0, math.pi, 0)
 end
 
+-- Tapis de course : dans le coin avant de la base, derrière le muret, loin des socles.
+-- Repère : dessus du sol, axe de course en Z (la console est côté +Z, face aux socles).
+MapLayout.TreadmillOffset = Vector3.new(-13.5, 0, -9.5)
+
+function MapLayout.treadmillCFrame(baseIndex: number): CFrame
+	return bases[baseIndex].cframe * CFrame.new(MapLayout.TreadmillOffset)
+end
+
 function MapLayout.isInsideBase(baseIndex: number, position: Vector3): boolean
 	local base = bases[baseIndex]
 	if not base then

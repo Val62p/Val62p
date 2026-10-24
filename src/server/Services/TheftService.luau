@@ -81,6 +81,11 @@ function TheftService:isThief(player: Player): boolean
 	return self.byThief[player.UserId] ~= nil
 end
 
+function TheftService:isCarrying(player: Player): boolean
+	local theft = self.byThief[player.UserId]
+	return theft ~= nil and theft.phase == "Carry"
+end
+
 function TheftService:isInvolved(player: Player): boolean
 	return self.byThief[player.UserId] ~= nil or self.byVictim[player.UserId] ~= nil
 end
@@ -296,7 +301,7 @@ function TheftService:_lift(theft: Theft, now: number, position: Vector3?)
 	theft.lastCheckAt = now
 	ctx.bases:setTransit(theft.baseIndex, theft.slot, true)
 	theft.visuals = ctx.visuals.attach(theft.thief, theft.victim, theft.memeId)
-	ctx.characters:setWalkSpeed(theft.thief, TheftCfg.CarryWalkSpeed)
+	ctx.characters:applySpeed(theft.thief)
 	local memeName = Catalog.meme(theft.memeId).name
 	ctx.notifier:send(
 		theft.victim,
@@ -331,7 +336,7 @@ function TheftService:_clear(theft: Theft)
 	end
 	ctx.bases:setUnderTheft(theft.baseIndex, false)
 	if ctx.isInGame(theft.thief) then
-		ctx.characters:setWalkSpeed(theft.thief, TheftCfg.NormalWalkSpeed)
+		ctx.characters:applySpeed(theft.thief) -- retour à la vitesse du tapis de course
 	end
 end
 

@@ -725,6 +725,8 @@ function MapService:_base(root: Instance, layout: MapLayout.BaseLayout)
 		pads[slot] = pad
 	end
 
+	local treadmill = self:_treadmill(model, layout, trims)
+
 	CollectionService:AddTag(model, Tags.Base)
 	self.bases[layout.index] = {
 		index = layout.index,
@@ -737,7 +739,86 @@ function MapService:_base(root: Instance, layout: MapLayout.BaseLayout)
 		signTitle = signTitle,
 		signSubtitle = signSubtitle,
 		statusGui = statusGui,
+		treadmill = treadmill,
 	}
+end
+
+-- Tapis de course de la base : station d'amélioration de la vitesse (bandes animées par le client).
+function MapService:_treadmill(parent: Instance, layout: MapLayout.BaseLayout, trims: { BasePart })
+	local t = MapLayout.treadmillCFrame(layout.index)
+	local model = Instance.new("Model")
+	model.Name = "Treadmill"
+	model:SetAttribute("BaseIndex", layout.index)
+	model:SetAttribute("Level", 1)
+	model.Parent = parent
+
+	local deck = block("Deck", Vector3.new(4.6, 0.5, 8.4), t * CFrame.new(0, 0.25, 0), Color3.fromRGB(64, 58, 92), model)
+	model.PrimaryPart = deck
+	block("Belt", Vector3.new(3.6, 0.08, 8), t * CFrame.new(0, 0.54, 0), Color3.fromRGB(36, 32, 52), model)
+	for i = 1, 5 do
+		local z = -3.2 + (i - 1) * 1.6
+		local stripe = block(
+			"Stripe",
+			Vector3.new(3.4, 0.04, 0.35),
+			t * CFrame.new(0, 0.6, z),
+			Color3.fromRGB(60, 230, 255),
+			model,
+			merge(decorative(), { Material = Enum.Material.Neon })
+		)
+		stripe:SetAttribute("Z0", z)
+	end
+	for _, side in { -1, 1 } do
+		table.insert(trims, block("Rail", Vector3.new(0.3, 0.35, 8.4), t * CFrame.new(side * 2.15, 0.65, 0), layout.color, model))
+		table.insert(trims, block("Post", Vector3.new(0.3, 3.4, 0.3), t * CFrame.new(side * 2, 2.2, 3.9), layout.color, model))
+	end
+	table.insert(trims, block("Bar", Vector3.new(4.3, 0.3, 0.3), t * CFrame.new(0, 3.8, 3.9), layout.color, model))
+	local console = block(
+		"Console",
+		Vector3.new(3.2, 1.1, 0.5),
+		t * CFrame.new(0, 3.3, 4.1) * CFrame.Angles(math.rad(25), 0, 0),
+		WHITE,
+		model
+	)
+	block(
+		"Screen",
+		Vector3.new(2.6, 0.7, 0.06),
+		console.CFrame * CFrame.new(0, 0, -0.28),
+		Color3.fromRGB(60, 230, 255),
+		model,
+		merge(decorative(), { Material = Enum.Material.Neon })
+	)
+
+	local gui = billboard(console, UDim2.fromOffset(210, 58), Vector3.new(0, 2.6, 0), 70)
+	gui.Name = "TreadmillGui"
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.fromScale(1, 1)
+	frame.BackgroundColor3 = WHITE
+	frame.BackgroundTransparency = 0.08
+	frame.BorderSizePixel = 0
+	frame.Parent = gui
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 12)
+	corner.Parent = frame
+	newText(frame, {
+		Name = "Title",
+		Text = "Tapis de course",
+		TextColor3 = INK,
+		TextStrokeTransparency = 1,
+		Size = UDim2.new(1, -12, 0.5, 0),
+		Position = UDim2.new(0, 6, 0.05, 0),
+	})
+	local level = newText(frame, {
+		Name = "Level",
+		Text = "",
+		Font = Enum.Font.GothamBold,
+		TextColor3 = Color3.fromRGB(28, 120, 200),
+		TextStrokeTransparency = 1,
+		Size = UDim2.new(1, -12, 0.38, 0),
+		Position = UDim2.new(0, 6, 0.56, 0),
+	})
+
+	CollectionService:AddTag(model, Tags.Treadmill)
+	return { model = model, console = console, levelLabel = level }
 end
 
 function MapService:_kiosk(root: Instance, biomeId: string)

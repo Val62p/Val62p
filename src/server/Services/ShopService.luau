@@ -76,8 +76,16 @@ function ShopService:buyUpgrade(player: Player, upgradeId: string)
 		return Router.fail(Codes.NotEnoughCoins, { missing = Economy.missing(profile, nextLevel.price) })
 	end
 	profile.upgrades[upgradeId] = levelIndex
-	self:_changed(player, upgradeId == "Slots")
+	self:applyUpgradeEffects(player, upgradeId)
 	return Router.ok({ upgradeId = upgradeId, level = levelIndex })
+end
+
+-- Conséquences visibles d'un nouveau niveau (achat en pièces ou en Robux).
+function ShopService:applyUpgradeEffects(player: Player, upgradeId: string)
+	if upgradeId == "Treadmill" then
+		self.ctx.characters:applySpeed(player)
+	end
+	self:_changed(player, upgradeId == "Slots" or upgradeId == "Treadmill")
 end
 
 function ShopService:buyCosmetic(player: Player, cosmeticId: string)

@@ -109,6 +109,18 @@ function BaseService:release(player: Player)
 		pad.LockGui.Enabled = false
 	end
 	self:applyTheme(index, Config.Cosmetics.Default)
+	ref.treadmill.model:SetAttribute("Level", 1)
+	ref.treadmill.levelLabel.Text = "Base libre"
+end
+
+-- Niveau et vitesse du tapis de course, visibles par tous au-dessus de la console.
+function BaseService:_refreshTreadmill(index: number, profile: any)
+	local treadmill = self.ctx.map.bases[index].treadmill
+	local level = Progression.level(profile, "Treadmill")
+	local maxLevel = #Config.Upgrades.Defs.Treadmill.levels
+	treadmill.model:SetAttribute("Level", level)
+	treadmill.model:SetAttribute("Speed", Progression.walkSpeed(profile))
+	treadmill.levelLabel.Text = string.format("Niv. %d/%d · vitesse %d", level, maxLevel, Progression.walkSpeed(profile))
 end
 
 function BaseService:_spawnMeme(index: number, slot: number, uid: string, memeId: string)
@@ -166,6 +178,7 @@ function BaseService:refresh(player: Player)
 	local profile = record.profile
 	local ref = self.ctx.map.bases[index]
 	local visuals = self.visuals[index]
+	self:_refreshTreadmill(index, profile)
 	local capacity = Progression.slotCapacity(profile)
 	local bySlot = Inventory.placedBySlot(profile)
 	for slot = 1, MapLayout.maxSlots() do

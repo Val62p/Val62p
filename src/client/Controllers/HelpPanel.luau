@@ -158,6 +158,54 @@ local function build()
 		end)
 	end)
 
+	-- Outils de test : affichés seulement quand le serveur tourne dans Roblox Studio.
+	if ClientState.view.ready and ClientState.view.studioTools then
+		local tools = Ui.new("Frame", {
+			Name = "StudioTools",
+			BackgroundColor3 = Colors.PanelAlt,
+			BorderSizePixel = 0,
+			Size = UDim2.new(1, 0, 0, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			LayoutOrder = nextOrder(),
+			Parent = content,
+		})
+		Ui.corner(tools, 14)
+		Ui.padding(tools, 10)
+		Ui.stroke(tools, Colors.Warning, 2)
+		Ui.list(tools, { Padding = UDim.new(0, 8) })
+		Ui.text(tools, {
+			Text = "Outils de test (Studio uniquement)",
+			Font = Theme.Fonts.Title,
+			TextSize = Theme.TextSize.Large,
+			LayoutOrder = 1,
+		})
+		Ui.text(tools, {
+			Text = "Invisibles et inactifs dans le jeu publié.",
+			TextSize = Theme.TextSize.Small,
+			TextColor3 = Colors.InkSoft,
+			LayoutOrder = 2,
+		})
+		for index, tool in {
+			{ id = "Coins", label = "+10 000 pièces" },
+			{ id = "EndShield", label = "Terminer ma protection" },
+			{ id = "Restock", label = "Nouvel arrivage dans les kiosques" },
+		} do
+			local button = Ui.button(tools, {
+				text = tool.label,
+				color = Colors.InkSoft,
+				layoutOrder = 2 + index,
+				size = UDim2.new(1, 0, 0, 44),
+				name = "Tool_" .. tool.id,
+			})
+			Ui.onClick(button, function()
+				task.spawn(function()
+					local result = ClientState.requestOnce("tool:" .. tool.id, "StudioTool", tool.id)
+					Notifications.result(result, result and result.ok and result.data.text or nil)
+				end)
+			end)
+		end
+	end
+
 	for _, section in rules() do
 		Ui.text(content, {
 			Text = section.title,

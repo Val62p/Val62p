@@ -70,6 +70,15 @@ function World.new(Loader, options)
 		isInGame = function(player)
 			return player.Parent ~= nil
 		end,
+		getPlayerByUserId = function(userId)
+			for _, player in players do
+				if player.UserId == userId then
+					return player
+				end
+			end
+			return nil
+		end,
+		isStudio = options.isStudio == true,
 		visuals = {
 			attach = function()
 				return { attached = true }
@@ -110,12 +119,20 @@ function World.new(Loader, options)
 	ctx.discovery = Loader.require(Services .. "DiscoveryService").new(ctx)
 	ctx.characters = Loader.require(Services .. "CharacterService").new(ctx)
 	ctx.theft = Loader.require(Services .. "TheftService").new(ctx)
+	-- Doublure de MarketplaceService : enregistre les fenêtres d'achat ouvertes.
+	local marketplace = { prompts = {}, ProcessReceipt = nil }
+	function marketplace:PromptProductPurchase(player, productId)
+		table.insert(self.prompts, { player = player, productId = productId })
+	end
+	ctx.monetization = Loader.require(Services .. "MonetizationService").new(ctx, marketplace, options.monetization)
+	ctx.studioTools = Loader.require(Services .. "StudioTools").new(ctx)
 	ctx.router = Loader.require(Services .. "Router").new(ctx)
 
 	ctx.map:build()
-	for _, service in { ctx.shop, ctx.inventory, ctx.theft, ctx.protection, ctx.characters } do
+	for _, service in { ctx.shop, ctx.inventory, ctx.theft, ctx.protection, ctx.characters, ctx.monetization, ctx.studioTools } do
 		service:registerActions(ctx.router)
 	end
+	ctx.monetization:bind()
 	ctx.kiosks:rotateAll()
 
 	local world = {
@@ -123,6 +140,7 @@ function World.new(Loader, options)
 		clock = clock,
 		store = store,
 		tagged = tagged,
+		marketplace = marketplace,
 		notify = notifyRemote,
 		stateRemote = stateRemote,
 		players = players,
@@ -168,6 +186,7 @@ function World.new(Loader, options)
 		if record then
 			ctx.protection:onPlayerReady(player, record)
 			ctx.bases:assign(player)
+			ctx.characters:applySpeed(player)
 		end
 		return player
 	end

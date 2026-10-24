@@ -3,6 +3,7 @@
 --  * Socle de sa base : « Poser un mème » / « Ranger »
 --  * Socle d'une autre base : « Tenter un vol » (masqué si la base est protégée)
 --  * Piédestal de kiosque : « Acheter »
+--  * Tapis de course de sa base : « Améliorer »
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -19,10 +20,12 @@ local Prompts = {}
 
 type PadEntry = { pad: BasePart, owner: ProximityPrompt, steal: ProximityPrompt }
 type PedestalEntry = { part: BasePart, prompt: ProximityPrompt }
+type TreadmillEntry = { model: Model, prompt: ProximityPrompt }
 
 local padEntries: { [BasePart]: PadEntry } = {}
 local watchedBases: { [Instance]: boolean } = {}
 local pedestalEntries: { [BasePart]: PedestalEntry } = {}
+local treadmillEntries: { [Model]: TreadmillEntry } = {}
 local openPicker: (slot: number) -> () = function(_slot: number) end
 
 local function anchor(part: BasePart, height: number): Attachment
@@ -95,12 +98,30 @@ local function updatePedestal(entry: PedestalEntry)
 	entry.prompt.HoldDuration = if price >= 500 then 0.8 else 0.25
 end
 
+local function updateTreadmill(entry: TreadmillEntry)
+	local view = ClientState.view
+	local mine = view.ready and view.baseIndex > 0 and entry.model:GetAttribute("BaseIndex") == view.baseIndex
+	local def = Config.Upgrades.Defs.Treadmill
+	local level = if view.ready then (view.upgrades.Treadmill or 1) else 1
+	local nextLevel = def.levels[level + 1]
+	entry.prompt.Enabled = mine and nextLevel ~= nil
+	entry.prompt.ObjectText = "Tapis de course · vitesse " .. tostring(def.levels[level].value)
+	if nextLevel then
+		entry.prompt.ActionText = if view.ready and view.coins < nextLevel.price
+			then "Il manque " .. Format.coins(nextLevel.price - view.coins)
+			else "Améliorer · " .. Format.coins(nextLevel.price) .. " pièces"
+	end
+end
+
 local function updateAll()
 	for _, entry in padEntries do
 		updatePad(entry)
 	end
 	for _, entry in pedestalEntries do
 		updatePedestal(entry)
+	end
+	for _, entry in treadmillEntries do
+		updateTreadmill(entry)
 	end
 end
 
@@ -204,6 +225,32 @@ local function trackPedestal(instance: Instance)
 	updatePedestal(entry)
 end
 
+local function trackTreadmill(instance: Instance)
+	if not instance:IsA("Model") or treadmillEntries[instance] then
+		return
+	end
+	local console = instance:FindFirstChild("Console")
+	if not console or not console:IsA("BasePart") then
+		return
+	end
+	local prompt = newPrompt(console, "Améliorer", 0.6, 10)
+	prompt.Name = "TreadmillPrompt"
+	local entry: TreadmillEntry = { model = instance, prompt = prompt }
+	treadmillEntries[instance] = entry
+	prompt.Triggered:Connect(function()
+		task.spawn(function()
+			local result = ClientState.requestOnce("upgrade:Treadmill", "BuyUpgrade", "Treadmill")
+			if result and result.ok then
+				local speed = Config.Upgrades.Defs.Treadmill.levels[result.data.level].value
+				Notifications.show("Success", "Tapis de course niveau " .. result.data.level .. " : vitesse " .. speed .. " !")
+			else
+				Notifications.result(result)
+			end
+		end)
+	end)
+	updateTreadmill(entry)
+end
+
 function Prompts.init(onPick: (slot: number) -> ())
 	openPicker = onPick
 	for _, pad in CollectionService:GetTagged(Tags.Pad) do
@@ -214,6 +261,10 @@ function Prompts.init(onPick: (slot: number) -> ())
 		trackPedestal(pedestal)
 	end
 	CollectionService:GetInstanceAddedSignal(Tags.Pedestal):Connect(trackPedestal)
+	for _, treadmill in CollectionService:GetTagged(Tags.Treadmill) do
+		trackTreadmill(treadmill)
+	end
+	CollectionService:GetInstanceAddedSignal(Tags.Treadmill):Connect(trackTreadmill)
 	ClientState.changed:Connect(updateAll)
 	-- Fin des protections (compte à rebours) : rafraîchissement léger chaque seconde.
 	task.spawn(function()

@@ -7,8 +7,8 @@ return {
 	LockpickRange = 14, -- distance max pendant le crochetage
 	-- Phase 2 : transport visible jusqu'à sa propre base.
 	CarrySeconds = 45,
+	-- Vitesse fixe pendant le transport, quel que soit le niveau du tapis de course.
 	CarryWalkSpeed = 12,
-	NormalWalkSpeed = 16,
 	-- Zone surveillée de la place centrale : y entrer avec un mème emprunté le renvoie chez son propriétaire.
 	-- (rayon défini dans Config.Map.SafeZoneRadius)
 	-- Anti-téléportation pendant le transport (studs/s, marge comprise).

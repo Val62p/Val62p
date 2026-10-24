@@ -23,6 +23,16 @@ function Progression.nextLevel(profile: any, upgradeId: string): (any?, number)
 	return def.levels[nextIndex], nextIndex
 end
 
+-- Vitesse de marche hors transport (tapis de course).
+function Progression.walkSpeed(profile: any): number
+	return Progression.current(profile, "Treadmill").value
+end
+
+-- Vitesse d'un joueur sans profil chargé (niveau de départ).
+function Progression.defaultWalkSpeed(): number
+	return Config.Upgrades.Defs.Treadmill.levels[1].value
+end
+
 function Progression.slotCapacity(profile: any): number
 	return Progression.current(profile, "Slots").value
 end

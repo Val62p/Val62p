@@ -124,6 +124,11 @@ function ClientHarness.start(Loader, world, serverPlayer, options)
 		end,
 	}
 	Loader.services.GuiService = { SelectedObject = nil }
+	Loader.services.MarketplaceService = {
+		GetProductInfo = function(_, productId)
+			return { ProductId = productId, PriceInRobux = 25 }
+		end,
+	}
 	Loader.services.UserInputService = {
 		KeyboardEnabled = options.keyboard ~= false,
 		TouchEnabled = options.touch == true,
@@ -180,6 +185,7 @@ function ClientHarness.start(Loader, world, serverPlayer, options)
 	function client.click(button)
 		assert(button, "bouton introuvable")
 		Fake.fire(button, "Activated")
+		Fake.pump(0) -- exécute les tâches différées (task.defer)
 	end
 
 	function client.press(actionName)

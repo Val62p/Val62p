@@ -1,6 +1,7 @@
 -- Démarrage explicite du serveur : construction de la carte, création des services,
 -- connexions joueurs et fermeture propre.
 local DataStoreService = game:GetService("DataStoreService")
+local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -27,6 +28,8 @@ local DiscoveryService = require(Services.DiscoveryService)
 local CharacterService = require(Services.CharacterService)
 local TheftService = require(Services.TheftService)
 local TheftVisuals = require(Services.TheftVisuals)
+local MonetizationService = require(Services.MonetizationService)
+local StudioTools = require(Services.StudioTools)
 
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
@@ -70,6 +73,11 @@ local ctx: any = {
 	isInGame = function(player: Player)
 		return player.Parent ~= nil
 	end,
+	getPlayerByUserId = function(userId: number)
+		return Players:GetPlayerByUserId(userId)
+	end,
+	-- Outils de test et achats fictifs autorisés seulement dans Roblox Studio.
+	isStudio = RunService:IsStudio(),
 	visuals = TheftVisuals,
 }
 
@@ -97,14 +105,22 @@ ctx.income = IncomeService.new(ctx)
 ctx.discovery = DiscoveryService.new(ctx)
 ctx.characters = CharacterService.new(ctx)
 ctx.theft = TheftService.new(ctx)
+ctx.monetization = MonetizationService.new(ctx, MarketplaceService)
+ctx.studioTools = StudioTools.new(ctx)
 ctx.router = Router.new(ctx)
 
 -- Carte puis actions réseau.
 ctx.map:build()
-for _, service in { ctx.shop, ctx.inventory, ctx.theft, ctx.protection, ctx.characters } do
+for _, service in { ctx.shop, ctx.inventory, ctx.theft, ctx.protection, ctx.characters, ctx.monetization, ctx.studioTools } do
 	service:registerActions(ctx.router)
 end
 ctx.router:bind(Remotes.Action)
+if ctx.monetization:bind() then
+	log("achats Robux actifs :", ctx.monetization:availableProducts())
+end
+if ctx.isStudio then
+	log("Studio : outils de test disponibles dans le panneau Aide (F1).")
+end
 
 local function onPlayerAdded(player: Player)
 	ctx.characters:watch(player)
@@ -114,6 +130,7 @@ local function onPlayerAdded(player: Player)
 	end
 	ctx.protection:onPlayerReady(player, record)
 	ctx.bases:assign(player)
+	ctx.characters:applySpeed(player)
 	ctx.state:push(player)
 	if not record.canSave then
 		ctx.notifier:send(

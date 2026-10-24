@@ -20,6 +20,8 @@ Net.Actions = table.freeze({
 	ToggleZen = "ToggleZen", -- ()
 	TeleportHome = "TeleportHome", -- ()
 	CompleteTutorial = "CompleteTutorial", -- ()
+	BuyWithRobux = "BuyWithRobux", -- (productKey: string) → ouvre la fenêtre d'achat Roblox
+	StudioTool = "StudioTool", -- (tool: string) — uniquement dans Roblox Studio, pour tester
 })
 
 Net.Notify = table.freeze({
@@ -76,6 +78,8 @@ local Codes = {
 	TeleportCooldown = "TeleportCooldown",
 	TeleportBlocked = "TeleportBlocked",
 	NoCharacter = "NoCharacter",
+	RobuxUnavailable = "RobuxUnavailable",
+	PromptFailed = "PromptFailed",
 }
 Net.Codes = table.freeze(Codes)
 
@@ -123,6 +127,8 @@ Net.Messages = table.freeze({
 	TeleportCooldown = "Téléportation en recharge.",
 	TeleportBlocked = "Impossible de te téléporter en portant un mème.",
 	NoCharacter = "Attends de réapparaître.",
+	RobuxUnavailable = "Les achats Robux ne sont pas encore activés dans ce jeu.",
+	PromptFailed = "La fenêtre d'achat n'a pas pu s'ouvrir, réessaie.",
 })
 
 function Net.format(template: string, data: { [string]: any }?): string

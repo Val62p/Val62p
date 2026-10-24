@@ -6,6 +6,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Config = require(ReplicatedStorage.Shared.Config)
 local MapLayout = require(ReplicatedStorage.Shared.MapLayout)
 local Net = require(ReplicatedStorage.Shared.Net)
+local Progression = require(ServerScriptService.Domain.Progression)
 local Router = require(ServerScriptService.Services.Router)
 
 local Codes = Net.Codes
@@ -18,7 +19,7 @@ function CharacterService.new(ctx: any)
 	return setmetatable({
 		ctx = ctx,
 		teleportCooldownUntil = {} :: { [number]: number },
-		connections = {} :: { [number]: { RBXScriptConnection } },
+		connections = {} :: { [number]: { [string]: RBXScriptConnection } },
 	}, CharacterService)
 end
 
@@ -56,14 +57,28 @@ function CharacterService:setWalkSpeed(player: Player, speed: number)
 	end
 end
 
--- Suivi des personnages : vitesse normale à chaque apparition, échec du vol en cas de chute.
+-- Vitesse décidée par le serveur : fixe pendant le transport d'un mème emprunté,
+-- sinon celle du tapis de course du joueur.
+function CharacterService:speedFor(player: Player): number
+	if self.ctx.theft:isCarrying(player) then
+		return Config.Theft.CarryWalkSpeed
+	end
+	local record = self.ctx.profiles:get(player)
+	return if record then Progression.walkSpeed(record.profile) else Progression.defaultWalkSpeed()
+end
+
+function CharacterService:applySpeed(player: Player)
+	self:setWalkSpeed(player, self:speedFor(player))
+end
+
+-- Suivi des personnages : vitesse du tapis à chaque apparition, échec du vol en cas de chute.
 function CharacterService:watch(player: Player)
 	local connections: { [string]: RBXScriptConnection } = {}
 	self.connections[player.UserId] = connections
 	local function onCharacter(character: Model)
 		local humanoid = character:WaitForChild("Humanoid", 10)
 		if humanoid and humanoid:IsA("Humanoid") then
-			humanoid.WalkSpeed = Config.Theft.NormalWalkSpeed
+			humanoid.WalkSpeed = self:speedFor(player)
 			if connections.died then
 				connections.died:Disconnect()
 			end

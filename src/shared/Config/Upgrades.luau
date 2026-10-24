@@ -1,9 +1,28 @@
 --!strict
 -- Améliorations de base achetées en pièces. Le niveau 1 est le niveau de départ (gratuit).
 -- Chaque niveau porte une `value` (effet principal) et un `price` (coût pour l'atteindre).
+-- Certaines peuvent aussi être avancées d'un niveau en Robux (voir Config/Monetization) :
+-- les mêmes niveaux restent toujours atteignables avec des pièces.
 return {
-	Order = { "Slots", "Storage", "Income", "Alarm" },
+	Order = { "Treadmill", "Slots", "Storage", "Income", "Alarm" },
 	Defs = {
+		-- Tapis de course installé dans chaque base : vitesse de marche du joueur.
+		-- Pendant le transport d'un mème emprunté, la vitesse reste fixée (Config/Theft) :
+		-- le tapis aide à explorer et à défendre sa base, pas à fuir avec un mème.
+		Treadmill = {
+			displayName = "Tapis de course",
+			description = "Entraîne-toi : tu marches plus vite partout (sauf en portant un mème emprunté).",
+			valueFormat = "Speed",
+			unit = "de vitesse",
+			levels = {
+				{ value = 16, price = 0 },
+				{ value = 18, price = 300 },
+				{ value = 20, price = 1200 },
+				{ value = 22, price = 3500 },
+				{ value = 24, price = 9000 },
+				{ value = 26, price = 20000 },
+			},
+		},
 		Slots = {
 			displayName = "Socles en plus",
 			description = "Plus de socles, plus de mèmes qui rapportent.",

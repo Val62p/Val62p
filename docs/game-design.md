@@ -34,10 +34,15 @@ Les raretés sont des **catégories de collection** : elles fixent l'apparence (
 
 | Amélioration | Niveaux (valeur : prix) |
 | --- | --- |
+| Tapis de course (vitesse de marche) | 16 : gratuit · 18 : 300 · 20 : 1 200 · 22 : 3 500 · 24 : 9 000 · 26 : 20 000 |
 | Socles en plus | 4 : gratuit · 5 : 250 · 6 : 900 · 7 : 2 600 · 8 : 6 500 |
 | Grande réserve | 6 : gratuit · 9 : 300 · 12 : 1 200 · 16 : 4 000 |
 | Néons de production (revenus) | ×1 · ×1,1 : 600 · ×1,25 : 3 000 · ×1,5 : 12 000 |
 | Alarme de base (rayon d'interception, crochetage plus long) | 8 · 10 (+0,75 s) : 400 · 12 (+1,5 s) : 1 500 · 14 (+2,25 s) : 4 500 |
+
+Le **tapis de course** est installé dans chaque base (à droite juste après l’entrée). On l'améliore depuis son invite (« Améliorer ») ou depuis la boutique ; son niveau et la vitesse s'affichent au-dessus de la console, et ses bandes lumineuses défilent plus vite à chaque niveau. La vitesse vaut partout, **sauf pendant le transport d'un mème emprunté** (vitesse fixe de 12) : elle aide à explorer et à rattraper un voleur, pas à fuir.
+
+**Robux (optionnel, désactivé par défaut)** : un produit de développeur « Tapis de course : +1 niveau » peut être activé (voir `docs/setup.md`, section 7). Il n'avance que d'un niveau, les mêmes niveaux restant atteignables avec des pièces ; rien d'aléatoire, pas d'avantage pour voler.
 
 Cosmétiques (thèmes de base, purement visuels) : Classique (gratuit), Bonbon 400, Lagon 900, Citron 1 600, Minuit 3 200.
 

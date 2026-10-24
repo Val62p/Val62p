@@ -5,9 +5,11 @@ Jeu Roblox multijoueur familial : **collectionne des mèmes originaux, installe-
 - 12 mèmes originaux construits en Parts (aucun asset externe), 4 raretés de collection.
 - Une place centrale et 3 biomes compacts (Prairie Pop, Plage Soda, Forêt Néon), 6 bases.
 - Vol d'opportunité équitable, entièrement décidé par le serveur : crochetage, transport visible, interception, zone surveillée, protections et anti-répétition.
+- Tapis de course dans chaque base, améliorable sur 6 niveaux (vitesse), en pièces ou en Robux une fois un produit configuré.
 - HUD minimal, boutique (mèmes, améliorations, cosmétiques), collection et album, aide, tutoriel, mode Zen.
+- Outils de test réservés à Studio (pièces, fin de protection, nouvel arrivage) dans le panneau Aide.
 - Progression sauvegardée (DataStore versionné, verrou de session, migrations).
-- Aucune monétisation Robux (désactivée tant qu'aucun produit réel n'est configuré).
+- Achats Robux prêts mais désactivés tant qu'aucun vrai produit n'est configuré (aucun identifiant inventé).
 
 ## Démarrage rapide
 
